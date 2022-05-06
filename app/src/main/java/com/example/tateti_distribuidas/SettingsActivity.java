@@ -22,6 +22,7 @@ public class SettingsActivity extends AppCompatActivity {
     private Switch btnSwitch;
     private String enabledMachine = "disable";
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

@@ -3,8 +3,10 @@ package com.example.tateti_distribuidas;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -26,6 +28,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private String p1Draw = new String();
     private String p2Draw = new String();
     private String enabledMachine = new String();
+    private int count =0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,13 +43,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         p1Draw = setP1DrawToPlay(p1Draw,drawSelected);
         p2Draw = setP2DrawToPlay(p1Draw);
 
-        for (int i = 0; i < 3; i++){
-            for (int j = 0; j < 3; j++){
-                String buttonId = "button_"+ i + j;
-                int resId = getResources().getIdentifier(buttonId,"id",getPackageName());
-                buttons[i][j] = findViewById(resId);
-                buttons[i][j].setOnClickListener(this);
-            }
+        updatePlayerOneName();
+
+        if (enabledMachine.equals("disable")){
+            playerVsPlayer();
+        } else {
+            playerVsMachine();
         }
 
         Button resetBtn = findViewById(R.id.reset_button);
@@ -83,6 +85,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         } else {
             isPlayerOneTurn = !isPlayerOneTurn; //if true, change to false. if false, change to true
         }
+    }
+
+    private void updatePlayerOneName(){
+        String playerName = getIntent().getStringExtra("playerName");
+        textPointsPlayerOne.setText(playerName+": 0");
     }
 
     private String setP1DrawToPlay(String p1, String drawSelected){
@@ -224,4 +231,48 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         pointsPlayerTwo = savedInstanceState.getInt("pointsPlayerTwo");
         isPlayerOneTurn = savedInstanceState.getBoolean("isPlayerOneTurn");
     }
+
+    public void machineTurn(){
+        int r, c;
+        Random random = new Random();
+        r= (int)Math.floor(Math.random()*(2-0+1)+0);
+        c= (int)Math.floor(Math.random()*(2-0+1)+0);
+
+        String buttonID = "button_" + r  + c;
+        int resID = getResources().getIdentifier(buttonID, "id", getPackageName());
+        ((Button) findViewById(resID)).setText(p2Draw);
+        isPlayerOneTurn = true;
+    }
+
+    private void playerVsPlayer(){
+        for (int i = 0; i < 3; i++){
+            for (int j = 0; j < 3; j++){
+                String buttonId = "button_"+ i + j;
+                int resId = getResources().getIdentifier(buttonId,"id",getPackageName());
+                buttons[i][j] = findViewById(resId);
+                buttons[i][j].setOnClickListener(this);
+            }
+        }
+    }
+
+    private void playerVsMachine(){
+        machineTurn();
+        while (count<4){
+        if (isPlayerOneTurn){
+            for (int i = 0; i < 3; i++){
+                for (int j = 0; j < 3; j++){
+                    String buttonId = "button_"+ i + j;
+                    int resId = getResources().getIdentifier(buttonId,"id",getPackageName());
+                    buttons[i][j] = findViewById(resId);
+                    buttons[i][j].setOnClickListener(this);
+                }
+            }
+        } else {
+            machineTurn();
+        }
+        count++;
+        }
+
+    }
+
 }
