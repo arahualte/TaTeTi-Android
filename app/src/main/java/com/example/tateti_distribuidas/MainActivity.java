@@ -3,11 +3,15 @@ package com.example.tateti_distribuidas;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.util.ArrayList;
+import java.util.Random;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -19,6 +23,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private TextView textPointsPlayerOne;
     private TextView textPointsPlayerTwo;
+    private String p1Draw = new String();
+    private String p2Draw = new String();
+    private String enabledMachine = new String();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,6 +34,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         textPointsPlayerOne = findViewById(R.id.text_p1);
         textPointsPlayerTwo = findViewById(R.id.text_p2);
+
+        String drawSelected = getIntent().getStringExtra("draw");
+        enabledMachine = getIntent().getStringExtra("enabledMachine");
+        p1Draw = setP1DrawToPlay(p1Draw,drawSelected);
+        p2Draw = setP2DrawToPlay(p1Draw);
 
         for (int i = 0; i < 3; i++){
             for (int j = 0; j < 3; j++){
@@ -48,13 +60,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onClick(View v) {
+
         if (!((Button) v).getText().toString().equals("")){
             return;
         }
         if (isPlayerOneTurn){
-            ((Button) v).setText("X");
+            ((Button) v).setText(p1Draw);
         } else {
-            ((Button) v).setText("O");
+            ((Button) v).setText(p2Draw);
         }
 
         roundCounter++;
@@ -68,13 +81,42 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         } else if (roundCounter == 9){
             noOneWins();
         } else {
-            isPlayerOneTurn = !isPlayerOneTurn; //si es true, cambio a falso y viceversa
+            isPlayerOneTurn = !isPlayerOneTurn; //if true, change to false. if false, change to true
         }
     }
 
-    /**
-     * validacion de posiciones marcadas, si son iguales y distintas de vacio
-     */
+    private String setP1DrawToPlay(String p1, String drawSelected){
+        Random random = new Random();
+        int value = 0;
+
+        if (drawSelected.equals("Random")){
+            value = random.nextInt(5-1)+1;
+            if (value < 3){
+                p1 = "Play Os";
+            } else {
+                p1 = "Play Xs";
+            }
+        }
+
+        if (drawSelected.equals("Play Xs") || p1.equals("Play Xs")){
+            p1 = "X";
+        } else if (drawSelected.equals("Play Os")  || p1.equals("Play Os")){
+            p1 = "O";
+        }
+        return p1;
+    }
+
+    private String setP2DrawToPlay(String p1){
+        String p2 = new String();
+        if (p1.equals("X")){
+            p2 = "O";
+        } else {
+            p2 = "X";
+        }
+        return p2;
+    }
+
+    /** Metodo de validacion de posiciones marcadas (si son iguales y distintas de vacio) */
     private boolean checkWinPositions() {
         String[][] field = new String[3][3];
 
@@ -120,8 +162,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void playerOneWins(){
+        String playerName = getIntent().getStringExtra("playerName");
         pointsPlayerOne++;
-        Toast.makeText(this, "Player 1 is the winner!", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, playerName+" is the winner!", Toast.LENGTH_SHORT).show();
         updatePointsText();
         resetBoard();
     }
@@ -139,7 +182,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void updatePointsText(){
-        textPointsPlayerOne.setText("Player 1: "+pointsPlayerOne);
+        String playerName = getIntent().getStringExtra("playerName");
+        textPointsPlayerOne.setText(playerName+": "+pointsPlayerOne);
         textPointsPlayerTwo.setText("Player 2: "+pointsPlayerTwo);
     }
 
